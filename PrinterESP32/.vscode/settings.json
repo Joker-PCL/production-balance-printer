@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "functional": "cpp",
+        "ui.h": "c",
+        "cmath": "cpp",
+        "optional": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "ratio": "cpp",
+        "system_error": "cpp",
+        "array": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "*.tcc": "cpp",
+        "string": "cpp",
+        "chrono": "cpp"
+    },
+    "cmake.sourceDirectory": "C:/Users/pizza/Desktop/Github/PrinterESP32/src/ui"
+}
