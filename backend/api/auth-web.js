@@ -4,7 +4,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware สำหรับตรวจสอบ JWT
 exports.authenticateWebToken = function (req, res, next) {
-  console.log('Cookies: ', req.cookies); // ✅ Debug ว่ามี Cookie หรือไม่
+  // console.log('Cookies: ', req.cookies); // ✅ Debug ว่ามี Cookie หรือไม่
 
   const token = req.cookies.authToken;
   if (!token) return res.status(401).json({ message: 'Access Denied' });

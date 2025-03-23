@@ -57,8 +57,8 @@ app.post('/api/login', (req, res) => {
 
         res.cookie('authToken', token, {
           httpOnly: true,
-          // sameSite: 'Lax', // อนุญาตให้ใช้ข้ามโดเมนได้
-          // secure: true, // ใช้ cookie เฉพาะกับการเชื่อมต่อ HTTPS
+          sameSite: 'Lax', // อนุญาตให้ใช้ข้ามโดเมนได้
+          secure: true, // ใช้ cookie เฉพาะกับการเชื่อมต่อ HTTPS
           maxAge: 3600000, // อายุของ cookie (1 ชั่วโมง)
         });
         res.status(200).json({ auth: true });

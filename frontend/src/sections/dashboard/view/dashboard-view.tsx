@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -8,8 +8,8 @@ import Typography from '@mui/material/Typography';
 import { SvgColor } from 'src/components/svg-color';
 // import Pagination from '@mui/material/Pagination';
 
-import Swal from 'sweetalert2'
-// import withReactContent from 'sweetalert2-react-content'
+import Swal from 'sweetalert2';
+// import withReactContent from 'sweetalert2-react-content';
 
 // import { _posts } from 'src/_mock_home';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -23,7 +23,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 
 import { Loading } from '../../../components/loading/loading';
 
-import { DashboardApi } from '../../../api/api'
+import { DashboardApi, CheckDevicesStatus } from '../../../api/api';
 
 // ----------------------------------------------------------------------
 
@@ -32,34 +32,49 @@ export function DashboardView() {
   const [sortBy, setSortBy] = useState('latest');
   const [filterName, setFilterName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<DashboardProps[]>([]);
+  const [deviceStatuses, setDeviceStatuses] = useState<{ ip_address: string, online: boolean }[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const getData = await DashboardApi(); // Wait for the promise to resolve
+        const getData: DashboardProps[] = await DashboardApi(); // Wait for the promise to resolve
         setIsLoading(false);
         setData(getData);
         console.log(getData);
       } catch (error) {
         if (error.status === 401 || error.status === 403) {
           navigate('/sign-in');
-        }
-        else {
+        } else {
           Swal.fire({
-            icon: "error",
-            title: "เกิดข้อผิดพลาด...",
-            text: "ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้!",
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด...',
+            text: 'ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้!',
             showConfirmButton: false,
           });
-          console.error("Error fetching data:", error);
+          console.error('Error fetching data:', error);
         }
       }
     };
 
     fetchData(); // Call the async function to fetch the data
-
   }, [navigate]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const ipAddresses = data.map(device => device.ip_address); // สมมติว่า data มีฟิลด์ ip_address
+        const response = await CheckDevicesStatus(ipAddresses);
+        console.log(response);
+        setDeviceStatuses(response);
+      } catch (error) {
+        console.error('Error checking device statuses:', error);
+      }
+    }, 5000); // 5000 milliseconds = 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, [data]);
 
   const dataFiltered: DashboardProps[] = applyFilter({
     inputData: data,
@@ -108,6 +123,19 @@ export function DashboardView() {
               { value: 'oldest', label: 'Oldest' },
             ]}
           />
+        </Box>
+
+        <Box display="flex" alignItems="center" mb={5}>
+          <Typography variant="h6" flexGrow={1}>
+            Device Statuses:
+          </Typography>
+          <ul>
+            {deviceStatuses.map(status => (
+              <li key={status.ip_address}>
+                {status.ip_address}: {status.online ? 'Online' : 'Offline'}
+              </li>
+            ))}
+          </ul>
         </Box>
 
         <Grid container spacing={3}>

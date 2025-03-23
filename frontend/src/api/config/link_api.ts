@@ -6,6 +6,7 @@ export const API_URL = {
   CONTENT_TYPE: { 'Content-Type': 'application/json; charset=utf-8' },
   HAND_SHAKE: `/handshake`,
   GET_DASHBOARD: `/${WEB_LINK}/dashboard`,
+  GET_DEVICE_STATUS: `/${WEB_LINK}/status`,
   LOGIN: `/login`,
   LOGOUT: `/logout`,
   GET_PRODUCTION: `/${WEB_LINK}/production`,

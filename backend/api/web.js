@@ -1,5 +1,6 @@
 //********************* API WEB CONNECTION *********************//
 const express = require('express');
+const ping = require('ping');
 
 const router = express.Router();
 const connection = require('../configuration/mysql_db');
@@ -9,16 +10,19 @@ router.get('/dashboard', async (req, res) => {
   try {
     // Fetch all devices
     const devices = await new Promise((resolve, reject) => {
-      connection.execute(`    
+      connection.execute(
+        `    
         SELECT d.*, mg.group_img
         FROM devices d
-        JOIN machine_group mg ON d.group_name = mg.group_name;`, (err, results) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results);
+        JOIN machine_group mg ON d.group_name = mg.group_name;`,
+        (err, results) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(results);
+          }
         }
-      });
+      );
     });
 
     const currentTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' '); // Get current timestamp in MySQL format
@@ -378,6 +382,31 @@ router.get('/machineLists', (req, res) => {
       res.status(400).send('Serial number not found');
     }
   });
+});
+
+// Endpoint สำหรับตรวจสอบสถานะของอุปกรณ์หลายๆ อุปกรณ์พร้อมกัน
+router.post('/status', async (req, res) => {
+  const { ip_addresses } = req.body; // รับ array ของ IP addresses จาก request body
+
+  if (!Array.isArray(ip_addresses)) {
+    return res.status(400).json({ message: 'ip_addresses should be an array' });
+  }
+
+  try {
+    const statusPromises = ip_addresses.map((ip_address) => {
+      return new Promise((resolve) => {
+        ping.sys.probe(ip_address, function (isAlive) {
+          resolve({ ip_address, online: isAlive });
+        });
+      });
+    });
+
+    const statuses = await Promise.all(statusPromises);
+    res.status(200).json(statuses);
+  } catch (error) {
+    console.error('Error checking device statuses:', error);
+    res.status(500).send('An error occurred while checking device statuses');
+  }
 });
 
 module.exports = router;

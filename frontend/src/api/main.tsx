@@ -41,6 +41,20 @@ export async function LogoutApi() {
   }
 }
 
+export async function CheckDevicesStatus(ipAddresses: string[]) {
+  try {
+    const response = await api.post(API_URL.GET_DEVICE_STATUS, { ip_addresses: ipAddresses }, {
+      headers: {
+        ...API_URL.CONTENT_TYPE,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function DashboardApi() {
   try {
     const response = await api.get(API_URL.GET_DASHBOARD, {
